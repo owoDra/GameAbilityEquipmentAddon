@@ -21,12 +21,16 @@ void UEquipmentFragment_AddAbilities::OnEquiped(UEquipmentManagerComponent* EMC,
 	check(EMC);
 	check(Instance);
 
-	auto* ASC{ EMC->GetAbilitySystemComponent() };
-	check(ASC);
-
-	for (const auto& AbilitySet : AbilitySetsToGrantOnEquip)
+	auto* Pawn{ Instance->GetPawnChecked<APawn>() };
+	if (Pawn->HasAuthority())
 	{
-		Instance->GrantAbilitySet_Equip(AbilitySet, ASC);
+		auto* ASC{ EMC->GetAbilitySystemComponent() };
+		check(ASC);
+
+		for (const auto& AbilitySet : AbilitySetsToGrantOnEquip)
+		{
+			Instance->GrantAbilitySet_Equip(AbilitySet, ASC);
+		}
 	}
 }
 
@@ -35,9 +39,13 @@ void UEquipmentFragment_AddAbilities::OnUnequiped(UEquipmentManagerComponent* EM
 	check(EMC);
 	check(Instance);
 
-	if (auto* ASC{ EMC->GetAbilitySystemComponent() })
+	auto* Pawn{ Instance->GetPawnChecked<APawn>() };
+	if (Pawn->HasAuthority())
 	{
-		Instance->RemoveAbilities_Equip(ASC);
+		if (auto* ASC{ EMC->GetAbilitySystemComponent() })
+		{
+			Instance->RemoveAbilities_Equip(ASC);
+		}
 	}
 }
 
@@ -46,12 +54,16 @@ void UEquipmentFragment_AddAbilities::OnActivated(UEquipmentManagerComponent* EM
 	check(EMC);
 	check(Instance);
 
-	auto* ASC{ EMC->GetAbilitySystemComponent() };
-	check(ASC);
-
-	for (const auto& AbilitySet : AbilitySetsToGrantOnActive)
+	auto* Pawn{ Instance->GetPawnChecked<APawn>() };
+	if (Pawn->HasAuthority())
 	{
-		Instance->GrantAbilitySet_Active(AbilitySet, ASC);
+		auto* ASC{ EMC->GetAbilitySystemComponent() };
+		check(ASC);
+
+		for (const auto& AbilitySet : AbilitySetsToGrantOnActive)
+		{
+			Instance->GrantAbilitySet_Active(AbilitySet, ASC);
+		}
 	}
 }
 
@@ -60,8 +72,12 @@ void UEquipmentFragment_AddAbilities::OnDeactivated(UEquipmentManagerComponent* 
 	check(EMC);
 	check(Instance);
 
-	if (auto* ASC{ EMC->GetAbilitySystemComponent() })
+	auto* Pawn{ Instance->GetPawnChecked<APawn>() };
+	if (Pawn->HasAuthority())
 	{
-		Instance->RemoveAbilities_Active(ASC);
+		if (auto* ASC{ EMC->GetAbilitySystemComponent() })
+		{
+			Instance->RemoveAbilities_Active(ASC);
+		}
 	}
 }

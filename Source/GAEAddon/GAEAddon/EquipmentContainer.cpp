@@ -115,11 +115,14 @@ UEquipmentInstance* FEquipmentContainer::AddEntry(const UEquipmentData* Equipmen
 
 	// Is it trying to add to the allowed slots?
 
-	if (!EquipmentData->AllowedSlotTags.HasTag(SlotTag))
+	if (!EquipmentData->AllowedSlotTags.IsEmpty())
 	{
-		return nullptr;
+		if (!EquipmentData->AllowedSlotTags.HasTag(SlotTag))
+		{
+			return nullptr;
+		}
 	}
-
+	
 	// Create instance
 
 	auto InstanceType{ UEquipmentInstance::StaticClass() };

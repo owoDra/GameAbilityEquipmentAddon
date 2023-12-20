@@ -282,8 +282,6 @@ bool UEquipmentManagerComponent::AddEquipment(FGameplayTag SlotTag, const UEquip
 		{
 			RemoveReplicatedSubObject(Instance);
 		}
-
-		return true;
 	}
 
 	// Add Equipment to the specified slot

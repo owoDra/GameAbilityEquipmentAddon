@@ -18,11 +18,15 @@ void UEquipmentFragment_SetTagStats::OnEquiped(UEquipmentManagerComponent* EMC, 
 {
 	check(Instance);
 
-	for (const auto& KVP : InitialEquipmentStats)
+	auto* Pawn{ Instance->GetPawnChecked<APawn>() };
+	if (Pawn->HasAuthority())
 	{
-		const auto& Tag{ KVP.Key };
-		const auto& Count{ KVP.Value };
+		for (const auto& KVP : InitialEquipmentStats)
+		{
+			const auto& Tag{ KVP.Key };
+			const auto& Count{ KVP.Value };
 
-		Instance->AddStatTagStack(Tag, Count);
+			Instance->AddStatTagStack(Tag, Count);
+		}
 	}
 }

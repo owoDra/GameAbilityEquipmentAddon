@@ -30,14 +30,14 @@ EDataValidationResult UEquipmentData::IsDataValid(TArray<FText>& ValidationError
 		{
 			const auto* RequiedClass{ Fragment->GetRequiredInstanceClass() };
 
-			if (CurrentInstanceType->IsChildOf(RequiedClass))
+			if (!CurrentInstanceType->IsChildOf(RequiedClass))
 			{
 				Result = EDataValidationResult::Invalid;
 				ValidationErrors.Add(
 					FText::Format(
 						LOCTEXT(
 							"FragmentRequiedInstanceWrong",
-							"The instance class requested({0}) by the fragment entered in the {1} index does not match the current InstanceType{2}"),
+							"The instance class requested({0}) by the fragment entered in the {1} index does not match the current InstanceType({2})"),
 						FText::FromString(*GetNameSafe(RequiedClass)),
 						FText::AsNumber(EntryIndex),
 						FText::FromString(*GetNameSafe(CurrentInstanceType))
