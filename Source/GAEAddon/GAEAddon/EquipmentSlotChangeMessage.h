@@ -17,7 +17,7 @@ class UEquipmentInstance;
  * EquipmentManagerComponent に登録した Equipment が変更されたときのメッセージ
  */
 USTRUCT(BlueprintType)
-struct FEquipmentSlotChangedMessage
+struct GAEADDON_API FEquipmentSlotChangedMessage
 {
 	GENERATED_BODY()
 public:

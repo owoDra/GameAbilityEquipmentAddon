@@ -35,7 +35,7 @@ public:
  * Data asset used to collectively add Equipment to EquipmentComponent
  */
 UCLASS(BlueprintType, Const)
-class UEquipmentSet : public UPrimaryDataAsset
+class GAEADDON_API UEquipmentSet : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 public:

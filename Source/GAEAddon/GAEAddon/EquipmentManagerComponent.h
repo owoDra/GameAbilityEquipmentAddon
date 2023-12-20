@@ -15,6 +15,7 @@ class EquipmentSet;
 class UEquipmentData;
 class UEquipmentInstance;
 class APawn;
+class UAbilitySystemComponent;
 
 
 /**

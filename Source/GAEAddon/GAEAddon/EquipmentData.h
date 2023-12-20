@@ -16,7 +16,7 @@ class UEquipmentInstance;
  * Class that defines predefined basic information such as the name and details of Equipment
  */
 UCLASS(BlueprintType, Const)
-class UEquipmentData : public UPrimaryDataAsset
+class GAEADDON_API UEquipmentData : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 public:
