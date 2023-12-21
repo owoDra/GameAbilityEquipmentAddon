@@ -10,7 +10,7 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(EquipmentFunctionLibrary)
 
 
-UEquipmentManagerComponent* UEquipmentFunctionLibrary::GetEquipmentManagerComponentFromActor(const APawn* Pawn, bool LookForComponent)
+UEquipmentManagerComponent* UEquipmentFunctionLibrary::GetEquipmentManagerComponentFromPawn(const APawn* Pawn, bool LookForComponent)
 {
 	if (!Pawn)
 	{

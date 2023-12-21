@@ -20,6 +20,6 @@ public:
 	 * Get EquipmentManagerComponent from actor
 	 */
 	UFUNCTION(BlueprintPure, Category = "Equipment", meta = (BlueprintInternalUseOnly = "false"))
-	static GAEADDON_API UEquipmentManagerComponent* GetEquipmentManagerComponentFromActor(const APawn* Pawn, bool LookForComponent = true);
+	static GAEADDON_API UEquipmentManagerComponent* GetEquipmentManagerComponentFromPawn(const APawn* Pawn, bool LookForComponent = true);
 
 };
