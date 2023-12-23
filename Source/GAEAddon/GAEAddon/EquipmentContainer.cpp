@@ -5,7 +5,11 @@
 #include "EquipmentData.h"
 #include "EquipmentInstance.h"
 #include "EquipmentManagerComponent.h"
+#include "EquipmentSlotChangeMessage.h"
+#include "GameplayTag/GAEATags_Message.h"
 #include "GAEAddonLogs.h"
+
+#include "Message/GameplayMessageSubsystem.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(EquipmentContainer)
 
@@ -245,10 +249,26 @@ void FEquipmentContainer::DeactivateEntry(int32 SlotIndex)
 
 void FEquipmentContainer::BroadcastSlotChangeMessage(FGameplayTag SlotTag, const UEquipmentData* EquipmentData, UEquipmentInstance* Instance)
 {
+	FEquipmentSlotChangedMessage Message;
+	Message.OwnerComponent = OwnerComponent;
+	Message.SlotTag = SlotTag;
+	Message.Data = EquipmentData;
+	Message.Instance = Instance;
+
+	auto& MessageSystem{ UGameplayMessageSubsystem::Get(OwnerComponent->GetWorld()) };
+	MessageSystem.BroadcastMessage(TAG_Message_Equipment_SlotChange, Message);
 }
 
 void FEquipmentContainer::BroadcastActiveSlotChangeMessage(FGameplayTag SlotTag, const UEquipmentData* EquipmentData, UEquipmentInstance* Instance)
 {
+	FEquipmentSlotChangedMessage Message;
+	Message.OwnerComponent = OwnerComponent;
+	Message.SlotTag = SlotTag;
+	Message.Data = EquipmentData;
+	Message.Instance = Instance;
+
+	auto& MessageSystem{ UGameplayMessageSubsystem::Get(OwnerComponent->GetWorld()) };
+	MessageSystem.BroadcastMessage(TAG_Message_Equipment_ActiveSlotChange, Message);
 }
 
 #pragma endregion
