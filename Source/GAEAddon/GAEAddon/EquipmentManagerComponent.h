@@ -2,8 +2,7 @@
 
 #pragma once
 
-#include "Components/PawnComponent.h"
-#include "Components/GameFrameworkInitStateInterface.h"
+#include "Component/GFCPawnComponent.h"
 
 #include "EquipmentSet.h"
 #include "EquipmentContainer.h"
@@ -22,9 +21,7 @@ class UAbilitySystemComponent;
  * Components for managing Equipment
  */
 UCLASS(meta = (BlueprintSpawnableComponent))
-class GAEADDON_API UEquipmentManagerComponent 
-	: public UPawnComponent
-	, public IGameFrameworkInitStateInterface
+class GAEADDON_API UEquipmentManagerComponent : public UGFCPawnComponent
 {
 	GENERATED_BODY()
 public:
@@ -42,21 +39,18 @@ protected:
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent{ nullptr };
 
 protected:
-	virtual void OnRegister() override;
-	virtual void OnUnregister() override;
-	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-protected:
 	void InitializeWithAbilitySystem();
 	void UninitializeFromAbilitySystem();
 
 public:
 	virtual FName GetFeatureName() const override { return NAME_ActorFeatureName; }
-	virtual bool CanChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState) const override;
-	virtual void HandleChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState) override;
 	virtual void OnActorInitStateChanged(const FActorInitStateChangedParams& Params) override;
-	virtual void CheckDefaultInitialization() override;
+
+protected:
+	virtual bool CanChangeInitStateToDataInitialized(UGameFrameworkComponentManager* Manager) const override;
+	virtual void HandleChangeInitStateToDataInitialized(UGameFrameworkComponentManager* Manager) override;
 
 
 private:

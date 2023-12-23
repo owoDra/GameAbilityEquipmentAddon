@@ -39,54 +39,8 @@ void UEquipmentManagerComponent::GetLifetimeReplicatedProps(TArray< FLifetimePro
 }
 
 
-void UEquipmentManagerComponent::OnRegister()
-{
-	Super::OnRegister();
-
-	// This component can only be added to classes derived from APawn
-
-	const auto* Pawn{ GetPawn<APawn>() };
-	ensureAlwaysMsgf((Pawn != nullptr), TEXT("EquipmentManagerComponent on [%s] can only be added to Pawn actors."), *GetNameSafe(GetOwner()));
-
-	// No more than two of these components should be added to a Actor.
-
-	TArray<UActorComponent*> Components;
-	GetOwner()->GetComponents(UEquipmentManagerComponent::StaticClass(), Components);
-	ensureAlwaysMsgf((Components.Num() == 1), TEXT("Only one EquipmentManagerComponent should exist on [%s]."), *GetNameSafe(GetOwner()));
-
-	// Register this component in the GameFrameworkComponentManager.
-
-	RegisterInitStateFeature();
-}
-
-void UEquipmentManagerComponent::OnUnregister()
-{
-	UninitializeFromAbilitySystem();
-
-	Super::OnUnregister();
-}
-
-void UEquipmentManagerComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// Start listening for changes in the initialization state of all features 
-	// related to the Pawn that owns this component.
-
-	BindOnActorInitStateChanged(NAME_None, FGameplayTag(), false);
-
-	// Change the initialization state of this component to [Spawned]
-
-	ensure(TryToChangeInitState(TAG_InitState_Spawned));
-
-	// Check if initialization process can continue
-
-	CheckDefaultInitialization();
-}
-
 void UEquipmentManagerComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	UnregisterInitStateFeature();
 	UninitializeFromAbilitySystem();
 
 	Super::EndPlay(EndPlayReason);
@@ -114,8 +68,6 @@ void UEquipmentManagerComponent::InitializeWithAbilitySystem()
 		UE_LOG(LogGAEA, Error, TEXT("EquipmentManagerComponent: Cannot initialize health component for owner [%s] with NULL ability system."), *GetNameSafe(Pawn));
 		return;
 	}
-
-	CheckDefaultInitialization();
 }
 
 void UEquipmentManagerComponent::UninitializeFromAbilitySystem()
@@ -129,91 +81,34 @@ void UEquipmentManagerComponent::UninitializeFromAbilitySystem()
 }
 
 
-bool UEquipmentManagerComponent::CanChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState) const
-{
-	check(Manager);
-
-	auto* Pawn{ GetPawn<APawn>() };
-
-	/**
-	 * [InitState None] -> [InitState Spawned]
-	 */
-	if (!CurrentState.IsValid() && DesiredState == TAG_InitState_Spawned)
-	{
-		if (Pawn != nullptr)
-		{
-			return true;
-		}
-	}
-
-	/**
-	 * [InitState Spawned] -> [InitState DataAvailable]
-	 */
-	else if (CurrentState == TAG_InitState_Spawned && DesiredState == TAG_InitState_DataAvailable)
-	{
-		return Manager->HasFeatureReachedInitState(Pawn, UGAEAbilitySystemComponent::NAME_ActorFeatureName, TAG_InitState_DataInitialized);
-	}
-
-	/**
-	 * [InitState DataAvailable] -> [InitState DataInitialized]
-	 */
-	else if (CurrentState == TAG_InitState_DataAvailable && DesiredState == TAG_InitState_DataInitialized)
-	{
-		if (AbilitySystemComponent)
-		{
-			return true;
-		}
-	}
-
-	/**
-	 * [InitState DataInitialized] -> [InitState GameplayReady]
-	 */
-	else if (CurrentState == TAG_InitState_DataInitialized && DesiredState == TAG_InitState_GameplayReady)
-	{
-		return true;
-	}
-
-	return false;
-}
-
-void UEquipmentManagerComponent::HandleChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState)
-{
-	UE_LOG(LogGAEA, Log, TEXT("[%s] Equipment Manager Component InitState Reached: %s"),
-		GetOwner()->HasAuthority() ? TEXT("SERVER") : TEXT("CLIENT"), *DesiredState.GetTagName().ToString());
-
-	/**
-	 * [InitState Spawned] -> [InitState DataAvailable]
-	 */
-	if (CurrentState == TAG_InitState_Spawned && DesiredState == TAG_InitState_DataAvailable)
-	{
-		InitializeWithAbilitySystem();
-	}
-}
-
 void UEquipmentManagerComponent::OnActorInitStateChanged(const FActorInitStateChangedParams& Params)
 {
+	Super::OnActorInitStateChanged(Params);
+
 	// Wait for initialization of AbilitySystemCompoenet
 
 	if (Params.FeatureName == UGAEAbilitySystemComponent::NAME_ActorFeatureName)
 	{
-		if ((Params.FeatureState == TAG_InitState_DataInitialized) || (Params.FeatureState == TAG_InitState_GameplayReady))
+		if ((Params.FeatureState == TAG_InitState_DataInitialized))
 		{
 			CheckDefaultInitialization();
 		}
 	}
 }
 
-void UEquipmentManagerComponent::CheckDefaultInitialization()
+bool UEquipmentManagerComponent::CanChangeInitStateToDataInitialized(UGameFrameworkComponentManager* Manager) const
 {
-	static const TArray<FGameplayTag> StateChain
+	if (!Manager->HasFeatureReachedInitState(GetOwner(), UGAEAbilitySystemComponent::NAME_ActorFeatureName, TAG_InitState_DataInitialized))
 	{
-		TAG_InitState_Spawned,
-		TAG_InitState_DataAvailable,
-		TAG_InitState_DataInitialized,
-		TAG_InitState_GameplayReady
-	};
+		return false;
+	}
 
-	ContinueInitStateChain(StateChain);
+	return true;
+}
+
+void UEquipmentManagerComponent::HandleChangeInitStateToDataInitialized(UGameFrameworkComponentManager* Manager)
+{
+	InitializeWithAbilitySystem();
 }
 
 

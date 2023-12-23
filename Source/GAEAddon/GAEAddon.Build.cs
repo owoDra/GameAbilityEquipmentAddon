@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright (C) 2023 owoDra
 
 using UnrealBuildTool;
 
@@ -27,6 +27,7 @@ public class GAEAddon : ModuleRules
                 "GameplayTags",
                 "GameplayAbilities",
                 "NetCore",
+                "GFCore",
             }
         );
 
@@ -34,7 +35,6 @@ public class GAEAddon : ModuleRules
         PrivateDependencyModuleNames.AddRange(
             new string[]
             {
-                "GFCore",
                 "GAExt",
             }
         );
