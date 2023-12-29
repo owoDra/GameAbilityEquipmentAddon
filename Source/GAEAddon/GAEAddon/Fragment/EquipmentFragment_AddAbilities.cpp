@@ -5,6 +5,8 @@
 #include "EquipmentManagerComponent.h"
 #include "EquipmentInstance.h"
 
+#include "AbilitySet.h"
+
 #include "AbilitySystemComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(EquipmentFragment_AddAbilities)

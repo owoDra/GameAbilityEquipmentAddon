@@ -6,8 +6,6 @@
 
 #include "EquipmentFragment_SetAnimLayers.generated.h"
 
-class UAbilitySet;
-
 
 /**
  * Class that defines the abilities granted to a character when equiping or activating equipment

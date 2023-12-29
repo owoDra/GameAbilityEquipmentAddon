@@ -6,8 +6,6 @@
 
 #include "EquipmentFragment_SpawnMeshes.generated.h"
 
-class USkeletalMesh;
-class UAnimInstance;
 struct FEquipmentMeshToSpawn;
 
 

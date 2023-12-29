@@ -2,21 +2,23 @@
 
 #pragma once
 
-#include "AbilitySet.h"
-
 #include "GameplayTag/GameplayTagStack.h"
+
+#include "AbilitySet.h"
 
 #include "EquipmentInstance.generated.h"
 
 class UEquipmentData;
 class UEquipmentManagerComponent;
+class USkeletalMesh;
+class UAnimInstance;
 
 
 /**
  * Actor spawn settings when equipping
  */
 USTRUCT(BlueprintType)
-struct FEquipmentMeshToSpawn
+struct GAEADDON_API FEquipmentMeshToSpawn
 {
 	GENERATED_BODY()
 public:
