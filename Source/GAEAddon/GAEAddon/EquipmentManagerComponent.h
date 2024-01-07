@@ -52,7 +52,9 @@ protected:
 	virtual bool CanChangeInitStateToDataInitialized(UGameFrameworkComponentManager* Manager) const override;
 	virtual void HandleChangeInitStateToDataInitialized(UGameFrameworkComponentManager* Manager) override;
 
-
+	////////////////////////////////////////////////////////////////////////////////////
+	// Equipment Container
+#pragma region Equipment Container
 private:
 	UPROPERTY(Replicated)
 	FEquipmentContainer EquipmentContainer;
@@ -61,8 +63,57 @@ public:
 	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 	virtual void ReadyForReplication() override;
 
+#pragma endregion
+
+
+	////////////////////////////////////////////////////////////////////////////////////
+	// Initial Equipments
+#pragma region Initial Equipments
+protected:
+	//
+	// Initial equipment set
+	// 
+	// Tips:
+	//	If you do not have any initial equipment, prepare an empty EquipmentSet and set it during initialization.
+	//
+	UPROPERTY(EditAnywhere, ReplicatedUsing = "OnRep_InitialEquipmentSet")
+	TObjectPtr<const UEquipmentSet> InitialEquipmentSet{ nullptr };
+
+protected:
+	UFUNCTION()
+	virtual void OnRep_InitialEquipmentSet();
+
+	/**
+	 * Apply the initial equipment set
+	 */
+	virtual void ApplyInitialEquipmentSet();
 
 public:
+	/**
+	 * Set the initial equipment set
+	 */
+	UFUNCTION(BlueprintAuthorityOnly, BlueprintCallable)
+	void SetInitialEquipmentSet(const UEquipmentSet* NewEquipmentSet);
+
+#pragma endregion
+
+
+	////////////////////////////////////////////////////////////////////////////////////
+	// Equipment Change
+#pragma region Equipment Change
+public:
+	/**
+	 * Remove all equipment and then add new equipment again.
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Equipment", meta = (GameplayTagFilter = "Equipment.Slot"))
+	void ResetEquipments(const TArray<FEquipmentSetEntry>& Entries, FGameplayTag ActivateSlotTag);
+
+	/**
+	 * Use EquipmentSet to remove all equipment and then add new equipment again
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Equipment")
+	void ResetEquipmentsByEquipmentSet(const UEquipmentSet* InSet);
+
 	/**
 	 * Adds Equipment to the specified Slot.
 	 * 
@@ -71,18 +122,6 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Equipment", meta = (GameplayTagFilter = "Equipment.Slot"))
 	bool AddEquipment(FGameplayTag SlotTag, const UEquipmentData* EquipmentData, bool ActivateImmediately = true);
-
-	/**
-	 * Add multiple Equipments to the specified Slot at once.
-	 * 
-	 * Tips:
-	 *	It can be made Active by specifying a SlotTag in the ActivateSlotTag.
-	 */
-	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Equipment", meta = (GameplayTagFilter = "Equipment.Slot"))
-	void ResetEquipments(const TArray<FEquipmentSetEntry>& Entries, FGameplayTag ActivateSlotTag = FGameplayTag());
-
-	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Equipment", meta = (GameplayTagFilter = "Equipment.Slot"))
-	void ResetEquipmentsByEquipmentSet(const UEquipmentSet* InSet);
 
 	/**
 	 * Remove the Equipment in the specified Slot.
@@ -96,7 +135,12 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Equipment")
 	void RemoveAllEquipments();
 
+#pragma endregion
 
+
+	////////////////////////////////////////////////////////////////////////////////////
+	// Active Slot
+#pragma region Active Slot
 public:
 	/**
 	 * Changing an Active Slot
@@ -117,11 +161,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Equipment", meta = (GameplayTagFilter = "Equipment.Slot"))
 	bool GetSlotInfo(FGameplayTag SlotTag, FEquipmentSlotChangedMessage& SlotInfo);
 
+#pragma endregion
 
+
+	////////////////////////////////////////////////////////////////////////////////////
+	// Utilities
+#pragma region Utilities
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Component")
 	static UEquipmentManagerComponent* FindEquipmentManagerComponent(const APawn* Pawn);
 
 	UAbilitySystemComponent* GetAbilitySystemComponent() const { return AbilitySystemComponent; }
+
+#pragma endregion
 
 };

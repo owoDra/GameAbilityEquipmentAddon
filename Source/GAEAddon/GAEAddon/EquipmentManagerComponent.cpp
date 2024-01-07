@@ -36,6 +36,7 @@ void UEquipmentManagerComponent::GetLifetimeReplicatedProps(TArray< FLifetimePro
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ThisClass, EquipmentContainer);
+	DOREPLIFETIME(ThisClass, InitialEquipmentSet);
 }
 
 
@@ -63,9 +64,10 @@ void UEquipmentManagerComponent::InitializeWithAbilitySystem()
 	}
 
 	AbilitySystemComponent = NewASC;
+
 	if (!AbilitySystemComponent)
 	{
-		UE_LOG(LogGAEA, Error, TEXT("EquipmentManagerComponent: Cannot initialize health component for owner [%s] with NULL ability system."), *GetNameSafe(Pawn));
+		UE_LOG(LogGAEA, Error, TEXT("EquipmentManagerComponent: Cannot initialize component for owner [%s] with NULL ability system."), *GetNameSafe(Pawn));
 		return;
 	}
 }
@@ -103,14 +105,23 @@ bool UEquipmentManagerComponent::CanChangeInitStateToDataInitialized(UGameFramew
 		return false;
 	}
 
+	if (!InitialEquipmentSet)
+	{
+		return false;
+	}
+
 	return true;
 }
 
 void UEquipmentManagerComponent::HandleChangeInitStateToDataInitialized(UGameFrameworkComponentManager* Manager)
 {
 	InitializeWithAbilitySystem();
+
+	ApplyInitialEquipmentSet();
 }
 
+
+#pragma region Equipment Container
 
 bool UEquipmentManagerComponent::ReplicateSubobjects(UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags)
 {
@@ -145,6 +156,156 @@ void UEquipmentManagerComponent::ReadyForReplication()
 	}
 }
 
+#pragma endregion
+
+
+#pragma region Initial Equipments
+
+void UEquipmentManagerComponent::OnRep_InitialEquipmentSet()
+{
+	check(InitialEquipmentSet);
+
+	CheckDefaultInitialization();
+}
+
+void UEquipmentManagerComponent::ApplyInitialEquipmentSet()
+{
+	// Must have Authority
+
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	check(AbilitySystemComponent);
+	check(InitialEquipmentSet);
+
+	// Add Equipments to the specified slots
+
+	for (const auto& Entry : InitialEquipmentSet->Entries)
+	{
+		// Check if the argument is valid
+
+		if (!Entry.EquipmentData || !Entry.SlotTag.IsValid())
+		{
+			continue;
+		}
+
+		// Add Equipment to the specified slot
+
+		if (auto* Result{ EquipmentContainer.AddEntry(Entry.EquipmentData, Entry.SlotTag) })
+		{
+			if (IsUsingRegisteredSubObjectList() && IsReadyForReplication())
+			{
+				AddReplicatedSubObject(Result);
+			}
+		}
+	}
+
+	// Set new active slot
+
+	auto ActivateSlotTag{ InitialEquipmentSet->DefaultActiveSlotTag };
+
+	if (ActivateSlotTag.IsValid())
+	{
+		SetActiveSlot(ActivateSlotTag);
+	}
+}
+
+void UEquipmentManagerComponent::SetInitialEquipmentSet(const UEquipmentSet* NewEquipmentSet)
+{
+	if (HasAuthority())
+	{
+		// If alread set, skip below
+
+		if (InitialEquipmentSet)
+		{
+			return;
+		}
+
+		// Set Initial Equipment Set
+
+		if (InitialEquipmentSet != NewEquipmentSet)
+		{
+			InitialEquipmentSet = NewEquipmentSet;
+
+			CheckDefaultInitialization();
+		}
+	}
+}
+
+#pragma endregion
+
+
+#pragma region Equipment Change
+
+void UEquipmentManagerComponent::ResetEquipments(const TArray<FEquipmentSetEntry>& Entries, FGameplayTag ActivateSlotTag)
+{
+	// Must have Authority
+
+	if (!GetOwner()->HasAuthority())
+	{
+		return;
+	}
+
+	// If has not game ready, skip
+
+	if (!HasReachedInitState(TAG_InitState_GameplayReady))
+	{
+		return;
+	}
+
+	// If the specified slot already has Equipment, remove it.
+
+	auto Instances{ EquipmentContainer.RemoveAllEntries() };
+	for (const auto& Instance : Instances)
+	{
+		if (IsUsingRegisteredSubObjectList())
+		{
+			RemoveReplicatedSubObject(Instance);
+		}
+	}
+
+	Instances.Empty();
+
+
+	// Add Equipments to the specified slots
+
+	for (const auto& Entry : Entries)
+	{
+		// Check if the argument is valid
+
+		if (!Entry.EquipmentData || !Entry.SlotTag.IsValid())
+		{
+			continue;
+		}
+
+		// Add Equipment to the specified slot
+
+		if (auto* Result{ EquipmentContainer.AddEntry(Entry.EquipmentData, Entry.SlotTag) })
+		{
+			if (IsUsingRegisteredSubObjectList() && IsReadyForReplication())
+			{
+				AddReplicatedSubObject(Result);
+			}
+		}
+	}
+
+	// Set new active slot
+
+	if (ActivateSlotTag.IsValid())
+	{
+		SetActiveSlot(ActivateSlotTag);
+	}
+}
+
+void UEquipmentManagerComponent::ResetEquipmentsByEquipmentSet(const UEquipmentSet* InSet)
+{
+	if (InSet)
+	{
+		ResetEquipments(InSet->Entries, InSet->DefaultActiveSlotTag);
+	}
+}
 
 bool UEquipmentManagerComponent::AddEquipment(FGameplayTag SlotTag, const UEquipmentData* EquipmentData, bool ActivateImmediately)
 {
@@ -155,9 +316,9 @@ bool UEquipmentManagerComponent::AddEquipment(FGameplayTag SlotTag, const UEquip
 		return false;
 	}
 
-	// Check AbilitySystemComponent
+	// If has not game ready, skip
 
-	if (!AbilitySystemComponent)
+	if (!HasReachedInitState(TAG_InitState_GameplayReady))
 	{
 		return false;
 	}
@@ -199,74 +360,6 @@ bool UEquipmentManagerComponent::AddEquipment(FGameplayTag SlotTag, const UEquip
 	return false;
 }
 
-void UEquipmentManagerComponent::ResetEquipments(const TArray<FEquipmentSetEntry>& Entries, FGameplayTag ActivateSlotTag)
-{
-	// Must have Authority
-
-	if (!GetOwner()->HasAuthority())
-	{
-		return;
-	}
-
-	// Check AbilitySystemComponent
-
-	if (!AbilitySystemComponent)
-	{
-		return;
-	}
-
-	// If the specified slot already has Equipment, remove it.
-
-	auto Instances{ EquipmentContainer.RemoveAllEntries() };
-	for (const auto& Instance : Instances)
-	{
-		if (IsUsingRegisteredSubObjectList())
-		{
-			RemoveReplicatedSubObject(Instance);
-		}
-	}
-
-	Instances.Empty();
-
-
-	// Add Equipments to the specified slots
-
-	for (const auto& Entry : Entries)
-	{
-		// Check if the argument is valid
-
-		if (!Entry.EquipmentData || !Entry.SlotTag.IsValid())
-		{
-			continue;
-		}
-		
-		// Add Equipment to the specified slot
-		
-		if (auto* Result{ EquipmentContainer.AddEntry(Entry.EquipmentData, Entry.SlotTag) })
-		{
-			if (IsUsingRegisteredSubObjectList() && IsReadyForReplication())
-			{
-				AddReplicatedSubObject(Result);
-			}
-		}
-	}
-
-	// Set new active slot
-
-	if (ActivateSlotTag.IsValid())
-	{
-		SetActiveSlot(ActivateSlotTag);
-	}
-}
-
-void UEquipmentManagerComponent::ResetEquipmentsByEquipmentSet(const UEquipmentSet* InSet)
-{
-	if (InSet)
-	{
-		ResetEquipments(InSet->Entries, InSet->DefaultActiveSlotTag);
-	}
-}
-
 bool UEquipmentManagerComponent::RemoveEquipment(FGameplayTag SlotTag)
 {
 	// Must have Authority
@@ -276,9 +369,9 @@ bool UEquipmentManagerComponent::RemoveEquipment(FGameplayTag SlotTag)
 		return false;
 	}
 
-	// Check AbilitySystemComponent
+	// If has not game ready, skip
 
-	if (!AbilitySystemComponent)
+	if (!HasReachedInitState(TAG_InitState_GameplayReady))
 	{
 		return false;
 	}
@@ -314,9 +407,9 @@ void UEquipmentManagerComponent::RemoveAllEquipments()
 		return;
 	}
 
-	// Check AbilitySystemComponent
+	// If has not game ready, skip
 
-	if (!AbilitySystemComponent)
+	if (!HasReachedInitState(TAG_InitState_GameplayReady))
 	{
 		return;
 	}
@@ -335,6 +428,10 @@ void UEquipmentManagerComponent::RemoveAllEquipments()
 	Instances.Empty();
 }
 
+#pragma endregion
+
+
+#pragma region Active Slot
 
 void UEquipmentManagerComponent::SetActiveSlot(FGameplayTag SlotTag)
 {
@@ -345,9 +442,9 @@ void UEquipmentManagerComponent::SetActiveSlot(FGameplayTag SlotTag)
 		return;
 	}
 
-	// Check AbilitySystemComponent
+	// If has not game ready, skip
 
-	if (!AbilitySystemComponent)
+	if (!HasReachedInitState(TAG_InitState_GameplayReady))
 	{
 		return;
 	}
@@ -436,8 +533,14 @@ bool UEquipmentManagerComponent::GetSlotInfo(FGameplayTag SlotTag, FEquipmentSlo
 	return false;
 }
 
+#pragma endregion
+
+
+#pragma region Utilities
 
 UEquipmentManagerComponent* UEquipmentManagerComponent::FindEquipmentManagerComponent(const APawn* Pawn)
 {
 	return (Pawn ? Pawn->FindComponentByClass<UEquipmentManagerComponent>() : nullptr);
 }
+
+#pragma endregion
