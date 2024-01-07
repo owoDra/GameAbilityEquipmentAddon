@@ -3,6 +3,7 @@
 #include "AbilityCost_EquipmentStatTag.h"
 
 #include "EquipmentInstance.h"
+#include "GAEAddonLogs.h"
 
 #include "GAEGameplayAbility.h"
 
@@ -19,18 +20,19 @@ UAbilityCost_EquipmentStatTag::UAbilityCost_EquipmentStatTag(const FObjectInitia
 
 bool UAbilityCost_EquipmentStatTag::CheckCost(const UGAEGameplayAbility* Ability, const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags) const
 {
-	// Returns false if EquipmentInstance is not inherited
+	// if EquipmentInstance is not inherited, skip
 
-	auto* SourceObject{ Ability->GetSourceObject(Handle, ActorInfo) };
+	auto* EquipmentInstance{ Ability->GetTypedSourceObject<UEquipmentInstance>() };
 
-	if (!SourceObject->IsA<UEquipmentInstance>())
+	if (!EquipmentInstance)
 	{
+		UE_LOG(LogGAEA, Warning, TEXT("UAbilityCost_EquipmentStatTag::CheckCost: SourceObject in [%s] is not derived from EquipmentInstance"), *GetNameSafe(Ability));
 		return false;
 	}
 
 	// Check the number of tags
 
-	if (auto* Interface{ Cast<IGameplayTagStackInterface>(SourceObject) })
+	if (auto* Interface{ Cast<IGameplayTagStackInterface>(EquipmentInstance) })
 	{
 		const auto AbilityLevel{ Ability->GetAbilityLevel(Handle, ActorInfo) };
 		const auto NumStacksReal{ Cost.GetValueAtLevel(AbilityLevel) };
@@ -44,18 +46,26 @@ bool UAbilityCost_EquipmentStatTag::CheckCost(const UGAEGameplayAbility* Ability
 
 void UAbilityCost_EquipmentStatTag::ApplyCost(const UGAEGameplayAbility* Ability, const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
+	// Must have authority
+
+	if (!ActorInfo->IsNetAuthority())
+	{
+		return;
+	}
+
 	// if EquipmentInstance is not inherited, skip
 
-	auto* SourceObject{ Ability->GetSourceObject(Handle, ActorInfo) };
+	auto* EquipmentInstance{ Ability->GetTypedSourceObject<UEquipmentInstance>() };
 
-	if (!SourceObject->IsA<UEquipmentInstance>())
+	if (!EquipmentInstance)
 	{
+		UE_LOG(LogGAEA, Warning, TEXT("UAbilityCost_EquipmentStatTag::ApplyCost: SourceObject in [%s] is not derived from EquipmentInstance"), *GetNameSafe(Ability));
 		return;
 	}
 
 	// Modify the number of tags
 
-	if (auto* Interface{ Cast<IGameplayTagStackInterface>(SourceObject) })
+	if (auto* Interface{ Cast<IGameplayTagStackInterface>(EquipmentInstance) })
 	{
 		const auto AbilityLevel{ Ability->GetAbilityLevel(Handle, ActorInfo) };
 		const auto NumStacksReal{ Cost.GetValueAtLevel(AbilityLevel) };
