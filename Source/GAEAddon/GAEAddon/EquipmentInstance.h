@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameplayTag/GameplayTagStack.h"
+#include "GameplayTag/GameplayTagStackInterface.h"
 
 #include "AbilitySet.h"
 
@@ -44,7 +45,9 @@ public:
  * A piece of equipment spawned and applied to a pawn
  */
 UCLASS(BlueprintType)
-class GAEADDON_API UEquipmentInstance : public UObject
+class GAEADDON_API UEquipmentInstance 
+	: public UObject
+	, public IGameplayTagStackInterface
 {
 	GENERATED_BODY()
 public:
@@ -90,39 +93,9 @@ protected:
 	UPROPERTY(Replicated)
 	FGameplayTagStackContainer StatTags;
 
-public:
-	/**
-	 * Add a Tag to Equipment that can be handled as statistics 
-	 * 
-	 * Tips:
-	 *	if StackCount is less than or equal to 0, do nothing.
-	 */
-	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Equipment")
-	void AddStatTagStack(FGameplayTag Tag, int32 StackCount);
-
-	/**
-	 * Delete Tags that can be handled as statistics in Equipment
-	 * 
-	 * Tips:
-	 *	If StackCount is less than or equal to 0, do nothing.
-	 */
-	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Equipment")
-	void RemoveStatTagStack(FGameplayTag Tag, int32 StackCount);
-
-	/**
-	 * Returns the number of Tags that can be handled as statistics in Equipment.
-	 *
-	 * Tips:
-	 *	Returns 0 if not present.
-	 */
-	UFUNCTION(BlueprintCallable, Category = "Equipment")
-	int32 GetStatTagStackCount(FGameplayTag Tag) const;
-
-	/**
-	 * Returns whether or not a Tag that can be handled as statistics exists in Equipment.
-	 */
-	UFUNCTION(BlueprintCallable, Category = "Equipment")
-	bool HasStatTag(FGameplayTag Tag) const;
+protected:
+	virtual FGameplayTagStackContainer* GetStatTags() override { return &StatTags; }
+	virtual const FGameplayTagStackContainer* GetStatTagsConst() const override { return &StatTags; }
 
 
 protected:

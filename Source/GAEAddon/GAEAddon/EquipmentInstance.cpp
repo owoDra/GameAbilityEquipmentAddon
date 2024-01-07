@@ -78,27 +78,6 @@ void UEquipmentInstance::OnDeactivated(UEquipmentManagerComponent* EMC, const UE
 }
 
 
-void UEquipmentInstance::AddStatTagStack(FGameplayTag Tag, int32 StackCount)
-{
-	StatTags.AddStack(Tag, StackCount);
-}
-
-void UEquipmentInstance::RemoveStatTagStack(FGameplayTag Tag, int32 StackCount)
-{
-	StatTags.RemoveStack(Tag, StackCount);
-}
-
-int32 UEquipmentInstance::GetStatTagStackCount(FGameplayTag Tag) const
-{
-	return StatTags.GetStackCount(Tag);
-}
-
-bool UEquipmentInstance::HasStatTag(FGameplayTag Tag) const
-{
-	return StatTags.ContainsTag(Tag);
-}
-
-
 void UEquipmentInstance::SpawnEquipmentMeshes(USkeletalMeshComponent* TargetMesh, const TArray<FEquipmentMeshToSpawn>& InMeshesToSpawn)
 {
 	if (InMeshesToSpawn.IsEmpty())
