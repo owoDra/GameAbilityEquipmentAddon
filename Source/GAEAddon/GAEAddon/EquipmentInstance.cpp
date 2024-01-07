@@ -17,6 +17,7 @@
 
 UEquipmentInstance::UEquipmentInstance(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
+	, StatTags(this)
 {
 }
 

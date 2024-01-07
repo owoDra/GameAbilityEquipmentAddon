@@ -140,6 +140,8 @@ UEquipmentInstance* FEquipmentContainer::AddEntry(const UEquipmentData* Equipmen
 	NewEntry.Data = EquipmentData;
 	NewEntry.Instance = NewObject<UEquipmentInstance>(OwnerComponent->GetOwner(), InstanceType);
 	NewEntry.Instance->OnEquiped(OwnerComponent, EquipmentData);
+
+	BroadcastSlotChangeMessage(NewEntry.SlotTag, NewEntry.Data, NewEntry.Instance);
 	
 	MarkItemDirty(NewEntry);
 
@@ -166,6 +168,8 @@ UEquipmentInstance* FEquipmentContainer::RemoveEntry(FGameplayTag SlotTag)
 				}
 
 				Instance->OnUnequiped(OwnerComponent, Data);
+
+				BroadcastSlotChangeMessage(Entry.SlotTag);
 			}
 
 			It.RemoveCurrent();
@@ -198,6 +202,8 @@ TArray<UEquipmentInstance*> FEquipmentContainer::RemoveAllEntries()
 			}
 
 			Instance->OnUnequiped(OwnerComponent, Data);
+
+			BroadcastSlotChangeMessage(Entry.SlotTag);
 		}
 
 		RemovingInstances.Add(Instance);
@@ -221,6 +227,8 @@ void FEquipmentContainer::ActivateEntry(int32 SlotIndex)
 		if (auto Instance{ Entry.Instance })
 		{
 			Instance->OnActivated(OwnerComponent, Entry.Data);
+
+			BroadcastActiveSlotChangeMessage(Entry.SlotTag, Entry.Data, Entry.Instance);
 		}
 
 		Entry.Activated = true;
