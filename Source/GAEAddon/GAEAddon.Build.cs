@@ -1,4 +1,4 @@
-// Copyright (C) 2024 owoDra
+﻿// Copyright (C) 2024 owoDra
 
 using UnrealBuildTool;
 
@@ -26,6 +26,7 @@ public class GAEAddon : ModuleRules
                 "ModularGameplay",
                 "GameplayTags",
                 "GameplayAbilities",
+                "UMG",
                 "NetCore",
                 "GFCore",
             }

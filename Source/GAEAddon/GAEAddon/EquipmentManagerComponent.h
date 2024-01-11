@@ -18,6 +18,12 @@ class UAbilitySystemComponent;
 
 
 /**
+ * Delegate to notify changes in EquipmentSlot
+ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEquipmentSlotEventDelegate, FEquipmentSlotChangedMessage, Param);
+
+
+/**
  * Components for managing Equipment
  */
 UCLASS(meta = (BlueprintSpawnableComponent))
@@ -60,8 +66,16 @@ private:
 	FEquipmentContainer EquipmentContainer;
 
 public:
+	UPROPERTY(BlueprintAssignable)
+	FEquipmentSlotEventDelegate OnEquipmentSlotChange;
+
+	UPROPERTY(BlueprintAssignable)
+	FEquipmentSlotEventDelegate OnActiveEquipmentSlotChange;
+
+public:
 	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 	virtual void ReadyForReplication() override;
+
 
 #pragma endregion
 

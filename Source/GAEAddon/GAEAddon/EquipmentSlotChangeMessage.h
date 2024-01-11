@@ -12,9 +12,7 @@ class UEquipmentInstance;
 
 
 /**
- * FBEEquipmentSlotChangedMessage
- *
- * EquipmentManagerComponent に登録した Equipment が変更されたときのメッセージ
+ * Message when Equipment registered in EquipmentManagerComponent is changed.
  */
 USTRUCT(BlueprintType)
 struct GAEADDON_API FEquipmentSlotChangedMessage

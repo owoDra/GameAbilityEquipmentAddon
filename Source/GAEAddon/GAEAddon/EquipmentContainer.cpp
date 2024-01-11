@@ -265,6 +265,8 @@ void FEquipmentContainer::BroadcastSlotChangeMessage(FGameplayTag SlotTag, const
 
 	auto& MessageSystem{ UGameplayMessageSubsystem::Get(OwnerComponent->GetWorld()) };
 	MessageSystem.BroadcastMessage(TAG_Message_Equipment_SlotChange, Message);
+
+	OwnerComponent->OnEquipmentSlotChange.Broadcast(Message);
 }
 
 void FEquipmentContainer::BroadcastActiveSlotChangeMessage(FGameplayTag SlotTag, const UEquipmentData* EquipmentData, UEquipmentInstance* Instance)
@@ -277,6 +279,8 @@ void FEquipmentContainer::BroadcastActiveSlotChangeMessage(FGameplayTag SlotTag,
 
 	auto& MessageSystem{ UGameplayMessageSubsystem::Get(OwnerComponent->GetWorld()) };
 	MessageSystem.BroadcastMessage(TAG_Message_Equipment_ActiveSlotChange, Message);
+
+	OwnerComponent->OnActiveEquipmentSlotChange.Broadcast(Message);
 }
 
 #pragma endregion

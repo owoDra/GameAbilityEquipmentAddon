@@ -47,7 +47,7 @@ public:
 	// Image of the weapon to be displayed in the game
 	//
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info")
-	TObjectPtr<UTexture2D> Image{ nullptr };
+	TSoftObjectPtr<UTexture2D> Image{ nullptr };
 
 	//
 	// Specify the Slot to which equipment can be added
