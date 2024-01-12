@@ -138,11 +138,21 @@ public:
 	 * Apply AbilitySet granted at Equip time
 	 */
 	virtual void GrantAbilitySet_Equip(const UAbilitySet* AbillitySet, UAbilitySystemComponent* ASC);
+	virtual void GrantAbilitySet_Equip(
+		const TArray<FAbilitySet_GameplayAbility>& Abilities
+		, const TArray<FAbilitySet_GameplayEffect>& Effects
+		, const TArray<FAbilitySet_AttributeSet>& Sets
+		, UAbilitySystemComponent* ASC);
 
 	/**
 	 * Apply AbilitySet granted at Activate time
 	 */
 	virtual void GrantAbilitySet_Active(const UAbilitySet* AbillitySet, UAbilitySystemComponent* ASC);
+	virtual void GrantAbilitySet_Active(
+		const TArray<FAbilitySet_GameplayAbility>& Abilities
+		, const TArray<FAbilitySet_GameplayEffect>& Effects
+		, const TArray<FAbilitySet_AttributeSet>& Sets
+		, UAbilitySystemComponent* ASC);
 
 	/**
 	 * Apply AbilitySet

@@ -6,6 +6,8 @@
 
 #include "EquipmentSlotChangeMessage.h"
 
+#include "Type/AbilityCostStatTagTargetTypes.h"
+
 #include "GameplayTagContainer.h"
 
 #include "EquipmentSlotWidgetBase.generated.h"
@@ -48,8 +50,12 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Transient, Category = "State")
 	bool bActivated{ false };
 
+protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Equipment", meta = (Categories = "Equipment.Slot"))
 	FGameplayTag AssociateSlotTag;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Equipment")
+	EStatTagCostTarget CostTarget;
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Health")
@@ -78,5 +84,17 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Equipment")
 	void OnActiveSlotChanged(bool bActive);
+
+
+	//////////////////////////////////////////////////////////////
+	// Utilities
+protected:
+	UObject* GetStatTagCostTarget() const;
+
+	template<typename T>
+	T* GetCostTarget() const
+	{
+		return Cast<T>(GetStatTagCostTarget());
+	}
 
 };

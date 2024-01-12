@@ -1,6 +1,6 @@
 ﻿// Copyright (C) 2024 owoDra
 
-#include "EquipmentFragment_AddAbilities.h"
+#include "EquipmentFragment_AddAbilitySets.h"
 
 #include "EquipmentManagerComponent.h"
 #include "EquipmentInstance.h"
@@ -9,16 +9,16 @@
 
 #include "AbilitySystemComponent.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(EquipmentFragment_AddAbilities)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EquipmentFragment_AddAbilitySets)
 
 
-UEquipmentFragment_AddAbilities::UEquipmentFragment_AddAbilities(const FObjectInitializer& ObjectInitializer)
+UEquipmentFragment_AddAbilitySets::UEquipmentFragment_AddAbilitySets(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 }
 
 
-void UEquipmentFragment_AddAbilities::OnEquiped(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const
+void UEquipmentFragment_AddAbilitySets::OnEquiped(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const
 {
 	check(EMC);
 	check(Instance);
@@ -29,11 +29,14 @@ void UEquipmentFragment_AddAbilities::OnEquiped(UEquipmentManagerComponent* EMC,
 		auto* ASC{ EMC->GetAbilitySystemComponent() };
 		check(ASC);
 
-		Instance->GrantAbilitySet_Equip(GrantedGameplayAbilities_OnEquiped, GrantedGameplayEffects_OnEquiped, GrantedAttributes_OnEquiped, ASC);
+		for (const auto& AbilitySet : AbilitySetsToGrantOnEquip)
+		{
+			Instance->GrantAbilitySet_Equip(AbilitySet, ASC);
+		}
 	}
 }
 
-void UEquipmentFragment_AddAbilities::OnUnequiped(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const
+void UEquipmentFragment_AddAbilitySets::OnUnequiped(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const
 {
 	check(EMC);
 	check(Instance);
@@ -48,7 +51,7 @@ void UEquipmentFragment_AddAbilities::OnUnequiped(UEquipmentManagerComponent* EM
 	}
 }
 
-void UEquipmentFragment_AddAbilities::OnActivated(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const
+void UEquipmentFragment_AddAbilitySets::OnActivated(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const
 {
 	check(EMC);
 	check(Instance);
@@ -59,11 +62,14 @@ void UEquipmentFragment_AddAbilities::OnActivated(UEquipmentManagerComponent* EM
 		auto* ASC{ EMC->GetAbilitySystemComponent() };
 		check(ASC);
 
-		Instance->GrantAbilitySet_Equip(GrantedGameplayAbilities_OnActivated, GrantedGameplayEffects_OnActivated, GrantedAttributes_OnActivated, ASC);
+		for (const auto& AbilitySet : AbilitySetsToGrantOnActive)
+		{
+			Instance->GrantAbilitySet_Active(AbilitySet, ASC);
+		}
 	}
 }
 
-void UEquipmentFragment_AddAbilities::OnDeactivated(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const
+void UEquipmentFragment_AddAbilitySets::OnDeactivated(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const
 {
 	check(EMC);
 	check(Instance);

@@ -26,6 +26,7 @@ public class GAEAddon : ModuleRules
                 "ModularGameplay",
                 "GameplayTags",
                 "GameplayAbilities",
+                "GameplayTasks",
                 "UMG",
                 "NetCore",
                 "GFCore",

@@ -6,6 +6,7 @@
 #include "EquipmentManagerComponent.h"
 
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/PlayerState.h"
 #include "GameFramework/Pawn.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(EquipmentSlotWidgetBase)
@@ -159,4 +160,35 @@ void UEquipmentSlotWidgetBase::SetEquipment(const UEquipmentData* Data, UEquipme
 	EquipmentInstance = Instance;
 
 	OnSlotChanged(Data, Instance);
+}
+
+
+UObject* UEquipmentSlotWidgetBase::GetStatTagCostTarget() const
+{
+	switch (CostTarget)
+	{
+	case EStatTagCostTarget::SourceObject:
+		return EquipmentInstance.Get();
+		break;
+
+	case EStatTagCostTarget::Avatar:
+		return GetOwningPlayerPawn();
+		break;
+
+	case EStatTagCostTarget::Owner:
+		return GetOwningPlayerPawn();
+		break;
+
+	case EStatTagCostTarget::Controller:
+		return GetOwningPlayer();
+		break;
+
+	case EStatTagCostTarget::PlayerState:
+		return GetOwningPlayerState();
+		break;
+
+	default:
+		return nullptr;
+		break;
+	}
 }

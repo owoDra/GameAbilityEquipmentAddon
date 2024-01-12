@@ -137,10 +137,48 @@ void UEquipmentInstance::GrantAbilitySet_Equip(const UAbilitySet* AbillitySet, U
 	GrantAbilitySet(AbillitySet, ASC, GrantedHandles_Equip);
 }
 
+void UEquipmentInstance::GrantAbilitySet_Equip(const TArray<FAbilitySet_GameplayAbility>& Abilities, const TArray<FAbilitySet_GameplayEffect>& Effects, const TArray<FAbilitySet_AttributeSet>& Sets, UAbilitySystemComponent* ASC)
+{
+	if (!Abilities.IsEmpty())
+	{
+		GrantedHandles_Equip.AddAbilities(ASC, Abilities, this);
+	}
+
+	if (!Effects.IsEmpty())
+	{
+		GrantedHandles_Equip.AddGameplayEffects(ASC, Effects, this);
+	}
+
+	if (!Sets.IsEmpty())
+	{
+		GrantedHandles_Equip.AddAttributeSets(ASC, Sets, this);
+	}
+}
+
+
 void UEquipmentInstance::GrantAbilitySet_Active(const UAbilitySet* AbillitySet, UAbilitySystemComponent* ASC)
 {
 	GrantAbilitySet(AbillitySet, ASC, GrantedHandles_Active);
 }
+
+void UEquipmentInstance::GrantAbilitySet_Active(const TArray<FAbilitySet_GameplayAbility>& Abilities, const TArray<FAbilitySet_GameplayEffect>& Effects, const TArray<FAbilitySet_AttributeSet>& Sets, UAbilitySystemComponent* ASC)
+{
+	if (!Abilities.IsEmpty())
+	{
+		GrantedHandles_Active.AddAbilities(ASC, Abilities, this);
+	}
+
+	if (!Effects.IsEmpty())
+	{
+		GrantedHandles_Active.AddGameplayEffects(ASC, Effects, this);
+	}
+
+	if (!Sets.IsEmpty())
+	{
+		GrantedHandles_Active.AddAttributeSets(ASC, Sets, this);
+	}
+}
+
 
 void UEquipmentInstance::GrantAbilitySet(const UAbilitySet* AbillitySet, UAbilitySystemComponent* ASC, FAbilitySet_GrantedHandles& OutHandles)
 {
@@ -149,6 +187,7 @@ void UEquipmentInstance::GrantAbilitySet(const UAbilitySet* AbillitySet, UAbilit
 
 	AbillitySet->GiveToAbilitySystem(ASC, &OutHandles, this);
 }
+
 
 void UEquipmentInstance::RemoveAbilities_Equip(UAbilitySystemComponent* ASC)
 {
