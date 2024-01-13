@@ -16,6 +16,29 @@ class UAnimInstance;
 
 
 /**
+ * Mesh data with Animlayer applied
+ */
+USTRUCT(BlueprintType)
+struct FApplyingAnimLayerHandle
+{
+	GENERATED_BODY()
+public:
+	FApplyingAnimLayerHandle() {}
+
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TWeakObjectPtr<USkeletalMeshComponent> MeshComponent{ nullptr };
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TWeakObjectPtr<UAnimInstance> AnimInstance{ nullptr };
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TSubclassOf<UAnimInstance> AnimLayerClass{ nullptr };
+
+};
+
+
+/**
  * Actor spawn settings when equipping
  */
 USTRUCT(BlueprintType)
@@ -170,18 +193,29 @@ public:
 	virtual void RemoveAbilities_Active(UAbilitySystemComponent* ASC);
 
 
+protected:
+	//
+	// Mesh datas with AnimLayer applied
+	//
+	UPROPERTY(Transient)
+	TArray<FApplyingAnimLayerHandle> ApplyingAnimLayers;
+
 public:
 	/**
 	 * Called when Equipment becomes Active.
 	 * Adapts AnimLayer to the Pawn.
 	 */
-	virtual void ApplyAnimLayer(UAnimInstance* TargetAnimInstance, TSubclassOf<UAnimInstance> InLayer);
+	virtual void ApplyAnimLayer(USkeletalMeshComponent* TargetMesh, TSubclassOf<UAnimInstance> InLayer);
 
 	/**
 	 * Called when Equipment becomes Deactive.
 	 * Deletes the adapted AnimLayer from the Pawn.
 	 */
-	virtual void RemoveAnimLayer(UAnimInstance* TargetAnimInstance, TSubclassOf<UAnimInstance> InLayer);
+	virtual void RemoveAnimLayers();
+
+protected:
+	UFUNCTION()
+	void HandleAnimLayerApplingMeshAnimInitialized();
 
 
 public:

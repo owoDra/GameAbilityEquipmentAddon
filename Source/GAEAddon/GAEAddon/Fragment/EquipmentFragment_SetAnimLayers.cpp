@@ -1,4 +1,4 @@
-// Copyright (C) 2024 owoDra
+﻿// Copyright (C) 2024 owoDra
 
 #include "EquipmentFragment_SetAnimLayers.h"
 
@@ -25,7 +25,7 @@ void UEquipmentFragment_SetAnimLayers::OnActivated(UEquipmentManagerComponent* E
 
 	if (Mesh && AnimLayerToApply)
 	{
-		Mesh->LinkAnimClassLayers(AnimLayerToApply);
+		Instance->ApplyAnimLayer(Mesh, AnimLayerToApply);
 	}
 }
 
@@ -33,11 +33,5 @@ void UEquipmentFragment_SetAnimLayers::OnDeactivated(UEquipmentManagerComponent*
 {
 	check(Instance);
 
-	auto* Character{ Instance->GetPawn<ACharacter>() };
-	auto* Mesh{ Character ? Character->GetMesh() : nullptr };
-
-	if (Mesh && AnimLayerToApply)
-	{
-		Mesh->UnlinkAnimClassLayers(AnimLayerToApply);
-	}
+	Instance->RemoveAnimLayers();
 }

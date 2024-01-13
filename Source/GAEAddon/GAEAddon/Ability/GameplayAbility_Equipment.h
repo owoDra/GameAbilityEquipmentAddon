@@ -69,7 +69,7 @@ protected:
 	/**
 	 * This function sends TargetData created by the client to the server and synchronizes it.
 	 */
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Targeting")
+	UFUNCTION(BlueprintCallable, Category = "Targeting")
 	void SendTargetData(const FGameplayAbilityTargetDataHandle& InTargetData);
 
 };

@@ -30,21 +30,21 @@ public:
 	/**
 	 * Executed when Equipment is Equiped
 	 */
-	virtual void OnEquiped(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const {}
+	virtual void OnEquiped(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const;
 
 	/**
 	 * Executed when Equipment is Unequiped
 	 */
-	virtual void OnUnequiped(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const {}
+	virtual void OnUnequiped(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const;
 
 	/**
 	 * Executed when Equipment is Activated
 	 */
-	virtual void OnActivated(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const {}
+	virtual void OnActivated(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const;
 
 	/**
 	 * Executed when Equipment is Deactivated
 	 */
-	virtual void OnDeactivated(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const {}
+	virtual void OnDeactivated(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const;
 
 };

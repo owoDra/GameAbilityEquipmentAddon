@@ -4,6 +4,7 @@
 
 #include "Fragment/EquipmentFragmentBase.h"
 #include "EquipmentInstance.h"
+#include "GAEAddonLogs.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(EquipmentData)
 
@@ -113,6 +114,8 @@ void UEquipmentData::UpdateAssetBundleData()
 
 void UEquipmentData::HandleEquiped(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const
 {
+	UE_LOG(LogGAEA, Log, TEXT("%s::HandleEquiped: Execute fragments (EMC:%s, Ins:%s)"), *GetNameSafe(this), *GetNameSafe(EMC), *GetNameSafe(Instance));
+
 	for (const auto& Fragment : Fragments)
 	{
 		Fragment->OnEquiped(EMC, Instance);
@@ -121,6 +124,8 @@ void UEquipmentData::HandleEquiped(UEquipmentManagerComponent* EMC, UEquipmentIn
 
 void UEquipmentData::HandleUnequiped(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const
 {
+	UE_LOG(LogGAEA, Log, TEXT("%s::HandleUnequiped: Execute fragments (EMC:%s, Ins:%s)"), *GetNameSafe(this), *GetNameSafe(EMC), *GetNameSafe(Instance));
+
 	for (const auto& Fragment : Fragments)
 	{
 		Fragment->OnUnequiped(EMC, Instance);
@@ -129,6 +134,8 @@ void UEquipmentData::HandleUnequiped(UEquipmentManagerComponent* EMC, UEquipment
 
 void UEquipmentData::HandleActivated(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const
 {
+	UE_LOG(LogGAEA, Log, TEXT("%s::HandleActivated: Execute fragments (EMC:%s, Ins:%s)"), *GetNameSafe(this), *GetNameSafe(EMC), *GetNameSafe(Instance));
+
 	for (const auto& Fragment : Fragments)
 	{
 		Fragment->OnActivated(EMC, Instance);
@@ -137,6 +144,8 @@ void UEquipmentData::HandleActivated(UEquipmentManagerComponent* EMC, UEquipment
 
 void UEquipmentData::HandleDeactivated(UEquipmentManagerComponent* EMC, UEquipmentInstance* Instance) const
 {
+	UE_LOG(LogGAEA, Log, TEXT("%s::HandleDeactivated: Execute fragments (EMC:%s, Ins:%s)"), *GetNameSafe(this), *GetNameSafe(EMC), *GetNameSafe(Instance));
+
 	for (const auto& Fragment : Fragments)
 	{
 		Fragment->OnDeactivated(EMC, Instance);

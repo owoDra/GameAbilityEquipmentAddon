@@ -206,10 +206,41 @@ void UEquipmentManagerComponent::ApplyInitialEquipmentSet()
 
 	auto ActivateSlotTag{ InitialEquipmentSet->DefaultActiveSlotTag };
 
-	if (ActivateSlotTag.IsValid())
+	// Cache new active slot indexes and last active slot indices
+
+	auto LastActiveIndex{ static_cast<int32>(INDEX_NONE) };
+	auto NewActiveIndex{ static_cast<int32>(INDEX_NONE) };
+
+	for (auto It{ EquipmentContainer.Entries.CreateIterator() }; It; ++It)
 	{
-		SetActiveSlot(ActivateSlotTag);
+		auto& Entry{ *It };
+
+		if (Entry.Activated)
+		{
+			LastActiveIndex = It.GetIndex();
+		}
+
+		if (Entry.SlotTag == ActivateSlotTag)
+		{
+			NewActiveIndex = It.GetIndex();
+		}
 	}
+
+	// Check if the new active slot index is valid
+
+	if ((NewActiveIndex == INDEX_NONE) || (NewActiveIndex == LastActiveIndex))
+	{
+		return;
+	}
+
+	// Set active slot
+
+	if (LastActiveIndex != INDEX_NONE)
+	{
+		EquipmentContainer.DeactivateEntry(LastActiveIndex);
+	}
+
+	EquipmentContainer.ActivateEntry(NewActiveIndex);
 }
 
 void UEquipmentManagerComponent::SetInitialEquipmentSet(const UEquipmentSet* NewEquipmentSet)

@@ -6,6 +6,7 @@
 #include "GAEAddonLogs.h"
 
 #include "Components/SkeletalMeshComponent.h"
+#include "Animation/AnimInstance.h"
 #include "Net/UnrealNetwork.h"
 
 #if UE_WITH_IRIS
@@ -200,22 +201,62 @@ void UEquipmentInstance::RemoveAbilities_Active(UAbilitySystemComponent* ASC)
 }
 
 
-void UEquipmentInstance::ApplyAnimLayer(UAnimInstance* TargetAnimInstance, TSubclassOf<UAnimInstance> InLayer)
+void UEquipmentInstance::ApplyAnimLayer(USkeletalMeshComponent* TargetMesh, TSubclassOf<UAnimInstance> InLayer)
 {
-	check(TargetAnimInstance);
+	check(TargetMesh);
 
 	if (InLayer)
 	{
-		TargetAnimInstance->LinkAnimClassLayers(InLayer);
+		FScriptDelegate NewDelegate;
+		NewDelegate.BindUFunction(this, GET_FUNCTION_NAME_CHECKED(UEquipmentInstance, HandleAnimLayerApplingMeshAnimInitialized));
+		TargetMesh->OnAnimInitialized.Add(NewDelegate);
+
+		auto& NewHandle{ ApplyingAnimLayers.AddDefaulted_GetRef() };
+		NewHandle.MeshComponent = TargetMesh;
+		NewHandle.AnimLayerClass = InLayer;
+
+		if (auto* AnimInstance{ TargetMesh->GetAnimInstance() })
+		{
+			NewHandle.AnimInstance = AnimInstance;
+
+			AnimInstance->LinkAnimClassLayers(InLayer);
+		}
 	}
 }
 
-void UEquipmentInstance::RemoveAnimLayer(UAnimInstance* TargetAnimInstance, TSubclassOf<UAnimInstance> InLayer)
+void UEquipmentInstance::RemoveAnimLayers()
 {
-	check(TargetAnimInstance);
-
-	if (InLayer)
+	for (const auto& Handle : ApplyingAnimLayers)
 	{
-		TargetAnimInstance->UnlinkAnimClassLayers(InLayer);
+		if (Handle.MeshComponent.IsValid())
+		{
+			Handle.MeshComponent->OnAnimInitialized.RemoveAll(this);
+
+			auto* AnimInstance{ Handle.AnimInstance.IsValid() ? Handle.AnimInstance.Get() : Handle.MeshComponent->GetAnimInstance() };
+
+			if (AnimInstance)
+			{
+				AnimInstance->UnlinkAnimClassLayers(Handle.AnimLayerClass);
+			}
+		}
+	}
+
+	ApplyingAnimLayers.Empty();
+}
+
+
+void UEquipmentInstance::HandleAnimLayerApplingMeshAnimInitialized()
+{
+	for (auto& Handle : ApplyingAnimLayers)
+	{
+		auto* OldAnimInstance{ Handle.AnimInstance.IsValid() ? Handle.AnimInstance.Get() : nullptr };
+		auto* NewAnimInstance{ Handle.MeshComponent.IsValid() ? Handle.MeshComponent->GetAnimInstance() : nullptr };
+
+		if (NewAnimInstance && (NewAnimInstance != OldAnimInstance))
+		{
+			Handle.AnimInstance = NewAnimInstance;
+
+			NewAnimInstance->LinkAnimClassLayers(Handle.AnimLayerClass);
+		}
 	}
 }
