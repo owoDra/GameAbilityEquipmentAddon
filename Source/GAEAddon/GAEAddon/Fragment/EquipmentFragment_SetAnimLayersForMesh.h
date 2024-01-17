@@ -25,7 +25,7 @@ public:
 	//
 	// AnimLayer class that adapts to the Pawn's Mesh when Equipment is Active.
 	//
-	UPROPERTY(EditDefaultsOnly, Category = "SetAnimLayers", meta = (ForceInlineRow))
+	UPROPERTY(EditDefaultsOnly, Category = "SetAnimLayers", meta = (ForceInlineRow, Categories = "MeshType"))
 	TMap<FGameplayTag, TSubclassOf<UAnimInstance>> AnimLayerToApply;
 
 public:

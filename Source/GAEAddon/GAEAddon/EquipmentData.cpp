@@ -2,6 +2,7 @@
 
 #include "EquipmentData.h"
 
+#include "EquipmentManagerComponent.h"
 #include "Fragment/EquipmentFragmentBase.h"
 #include "EquipmentInstance.h"
 #include "GAEAddonLogs.h"
