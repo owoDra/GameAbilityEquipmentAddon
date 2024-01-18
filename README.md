@@ -3,4 +3,4 @@
 
 https://github.com/owoDra/GameAbilityExtension
 
-[OUTDATED] Game Equipment Extension に置き換わるため
+## [OUTDATED] Game Equipment Extension に置き換わるため
